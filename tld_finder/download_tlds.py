@@ -2,10 +2,13 @@ from tqdm import tqdm
 import requests
 
 def download_tlds():
+    import os
     url = "https://data.iana.org/TLD/tlds-alpha-by-domain.txt"
     response = requests.get(url)
     if response.status_code == 200:
-        with open("tlds-alpha-by-domain.txt", "w") as file:
+        script_dir = os.path.dirname(__file__)  # Get the directory where the script is located
+        tlds_file_path = os.path.join(script_dir, "tlds-alpha-by-domain.txt")
+        with open(tlds_file_path, "w") as file:
             # Split the response into lines for progress reporting
             lines = response.text.splitlines()
             for line in tqdm(lines, desc="Downloading TLDs"):
