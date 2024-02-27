@@ -2,7 +2,10 @@ import argparse
 import json
 
 def load_tlds():
-    with open("tlds-alpha-by-domain.txt", "r") as file:
+    import os
+    script_dir = os.path.dirname(__file__)  # Get the directory where the script is located
+    tlds_file_path = os.path.join(script_dir, "tlds-alpha-by-domain.txt")
+    with open(tlds_file_path, "r") as file:
         return [line.strip().lower() for line in file.readlines() if not line.startswith("#")]
 
 def find_matching_tlds(words, tlds):
