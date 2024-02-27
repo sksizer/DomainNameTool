@@ -35,10 +35,12 @@ def check_domain_availability(domains, verbose=False):
             w = whois.whois(domain)
             # If the WHOIS library can find a record, the domain is likely registered.
             # Note: WHOIS data structures can be inconsistent across TLDs; this is a basic check.
-            availability[domain] = 'Registered' if w.domain_name else 'Available'
+            # Change to boolean: false for available, true for registered or unknown
+            availability[domain] = False if not w.domain_name else True
         except Exception as e:
             # Handle exceptions, e.g., rate limits, connectivity issues, etc.
-            availability[domain] = 'Unknown'
+            # Treat unknown as true to indicate not available for registration without specific status
+            availability[domain] = True
     return availability
 
 def main():
@@ -56,7 +58,8 @@ def main():
 
     # Include availability information in the matches output
     for word, domains in matches.items():
-        matches[word] = [{'domain': domain, 'availability': availability[domain]} for domain in domains]
+        # Adjust the structure to nest results under "results" key and change availability to boolean
+        matches[word] = {"results": [{'domain': domain, 'available': not availability[domain]} for domain in domains]}
 
     import os
     output_file_path = os.path.join(os.path.dirname(__file__), args.output)
