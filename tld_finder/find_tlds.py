@@ -1,5 +1,6 @@
 from tqdm import tqdm
 from download_tlds import download_tlds
+import http.server
 import argparse
 import json
 import whois
@@ -56,6 +57,7 @@ def main():
     parser = argparse.ArgumentParser(description="Find TLDs that can complete the end of given words.")
     parser.add_argument("words", nargs="+", help="List of words to check for matching TLDs.")
     parser.add_argument("--output", "-o", default="tld_matches.json", help="Output JSON file name.")
+    parser.add_argument("--serve", action="store_true", help="Serve the results via a web server.")
     args = parser.parse_args()
 
     tlds = load_tlds()
@@ -74,6 +76,14 @@ def main():
     output_file_path = os.path.join(os.path.dirname(__file__), args.output)
     with open(output_file_path, "w") as file:
         json.dump(matches, file, indent=4)
+
+    if args.serve:
+        port = 8000
+        directory = os.path.dirname(__file__)
+        handler = http.server.SimpleHTTPRequestHandler
+        httpd = http.server.HTTPServer(("", port), handler)
+        print(f"Serving at port {port}. Open http://localhost:{port}/index.html in your browser.")
+        httpd.serve_forever()
 
 if __name__ == "__main__":
     main()
