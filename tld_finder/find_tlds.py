@@ -5,6 +5,9 @@ def load_tlds():
     import os
     script_dir = os.path.dirname(__file__)  # Get the directory where the script is located
     tlds_file_path = os.path.join(script_dir, "tlds-alpha-by-domain.txt")
+    if not os.path.exists(tlds_file_path):
+        print("TLDs file not found. Please run download_tlds.py to download the TLDs list.")
+        exit(1)
     with open(tlds_file_path, "r") as file:
         return [line.strip().lower() for line in file.readlines() if not line.startswith("#")]
 
