@@ -29,7 +29,9 @@ def main():
     tlds = load_tlds()
     matches = find_matching_tlds(args.words, tlds)
 
-    with open(args.output, "w") as file:
+    import os
+    output_file_path = os.path.join(os.path.dirname(__file__), args.output)
+    with open(output_file_path, "w") as file:
         json.dump(matches, file, indent=4)
 
 if __name__ == "__main__":
