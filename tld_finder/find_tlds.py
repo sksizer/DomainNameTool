@@ -81,6 +81,7 @@ def main():
     if args.serve:
         port = 8000
         directory = os.path.dirname(__file__)
+        os.chdir(directory)  # Change the current working directory
         handler = http.server.SimpleHTTPRequestHandler
         httpd = http.server.HTTPServer(("", port), handler)
         print(f"Serving at port {port}. Open http://localhost:{port}/index.html in your browser.")
