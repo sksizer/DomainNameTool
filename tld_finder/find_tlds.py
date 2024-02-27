@@ -1,5 +1,6 @@
 import argparse
 import json
+import whois
 
 def load_tlds():
     import os
@@ -17,11 +18,26 @@ def find_matching_tlds(words, tlds):
         for tld in tlds:
             if word.endswith(tld):
                 domain = f"{word[:-len(tld)]}.{tld}"
+            if word.endswith("." + tld):
+                domain = f"{word}.{tld}"
                 if word in matches:
                     matches[word].append(domain)
                 else:
                     matches[word] = [domain]
     return matches
+
+def check_domain_availability(domains):
+    availability = {}
+    for domain in domains:
+        try:
+            w = whois.whois(domain)
+            # If the WHOIS library can find a record, the domain is likely registered.
+            # Note: WHOIS data structures can be inconsistent across TLDs; this is a basic check.
+            availability[domain] = 'Registered' if w.domain_name else 'Available'
+        except Exception as e:
+            # Handle exceptions, e.g., rate limits, connectivity issues, etc.
+            availability[domain] = 'Unknown'
+    return availability
 
 def main():
     parser = argparse.ArgumentParser(description="Find TLDs that can complete the end of given words.")
@@ -31,6 +47,14 @@ def main():
 
     tlds = load_tlds()
     matches = find_matching_tlds(args.words, tlds)
+
+    # Flatten the list of domains to check their availability
+    all_domains = [domain for match_list in matches.values() for domain in match_list]
+    availability = check_domain_availability(all_domains)
+
+    # Include availability information in the matches output
+    for word, domains in matches.items():
+        matches[word] = [{'domain': domain, 'availability': availability[domain]} for domain in domains]
 
     import os
     output_file_path = os.path.join(os.path.dirname(__file__), args.output)
