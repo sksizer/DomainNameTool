@@ -1,5 +1,7 @@
+from flask import Flask, request, jsonify
 from tqdm import tqdm
 from download_tlds import download_tlds
+import threading
 import webbrowser
 import http.server
 import argparse
@@ -39,6 +41,7 @@ def find_matching_tlds(words, tlds):
     return matches
 
 def check_domain_availability(domains, verbose=False):
+    # This function remains unchanged
     availability = {}
     domains_iter = tqdm(domains, desc="Checking domain availability") if verbose else domains
     for domain in domains_iter:
@@ -60,6 +63,34 @@ def main():
     parser.add_argument("--output", "-o", default="tld_matches.json", help="Output JSON file name.")
     parser.add_argument("--serve", action="store_true", help="Serve the results via a web server.")
     args = parser.parse_args()
+
+    if args.serve:
+        app = Flask(__name__)
+
+        @app.route('/submit_domains', methods=['POST'])
+        def submit_domains():
+            data = request.json
+            words = data.get('domains', '').split()
+            if not words:
+                return jsonify({'error': 'No domains provided'}), 400
+
+            def update_matches():
+                tlds = load_tlds()
+                matches = find_matching_tlds(words, tlds)
+                all_domains = [domain for match_list in matches.values() for domain in match_list]
+                availability = check_domain_availability(all_domains, verbose=True)
+                for word, domains in matches.items():
+                    matches[word] = {"results": [{'domain': domain, 'available': not availability[domain]} for domain in domains]}
+                output_file_path = os.path.join(os.path.dirname(__file__), 'tld_matches.json')
+                with open(output_file_path, "w") as file:
+                    json.dump(matches, file, indent=4)
+
+            thread = threading.Thread(target=update_matches)
+            thread.start()
+            return jsonify({'message': 'Processing domains...'})
+
+        app.run(debug=True, port=5000)
+        sys.exit(0)
 
     tlds = load_tlds()
     matches = find_matching_tlds(args.words, tlds)
@@ -88,5 +119,6 @@ def main():
         webbrowser.open(f'http://localhost:{port}/index.html')
         httpd.serve_forever()
 
+    # The rest of the main function remains unchanged
 if __name__ == "__main__":
     main()

@@ -24,7 +24,15 @@
             event.preventDefault();
             const domainInput = document.getElementById('domainInput').value;
             // Here you would handle the form submission, e.g., by invoking a backend service.
-            console.log('Form submission for domains:', domainInput);
+            fetch('/submit_domains', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({domains: domainInput}),
+            })
+            .then(response => response.json())
+            .then(data => console.log(data));
         });
     </script>
     <h1>TLD Matches</h1>
