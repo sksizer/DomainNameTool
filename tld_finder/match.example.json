@@ -1,0 +1,42 @@
+{
+    "house": {
+        "results": [
+            {
+                "domain": ".house",
+                "available": false
+            },
+            {
+                "domain": "hou.se",
+                "available": false
+            }
+        ]
+    },
+    "roam": {
+        "results": [
+            {
+                "domain": "ro.am",
+                "available": false
+            }
+        ]
+    },
+    "something": {
+        "results": [
+            {
+                "domain": "someth.ing",
+                "available": true
+            },
+            {
+                "domain": "somethi.ng",
+                "available": true
+            }
+        ]
+    },
+    "rus": {
+        "results": [
+            {
+                "domain": "r.us",
+                "available": false
+            }
+        ]
+    }
+}
