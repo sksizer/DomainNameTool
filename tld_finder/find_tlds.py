@@ -128,3 +128,15 @@ def main():
     # The rest of the main function remains unchanged
 if __name__ == "__main__":
     main()
+def load_tlds():
+    import os
+    script_dir = os.path.dirname(__file__)  # Get the directory where the script is located
+    tlds_file_path = os.path.join(script_dir, "tlds-alpha-by-domain.txt")
+    if not os.path.exists(tlds_file_path):
+        print("TLDs file not found. Downloading TLDs list...")
+        download_tlds()
+        if not os.path.exists(tlds_file_path):
+            print("Failed to download TLDs list. Please check your internet connection.")
+            exit(1)
+    with open(tlds_file_path, "r") as file:
+        return [line.strip().lower() for line in file.readlines() if not line.startswith("#")]
