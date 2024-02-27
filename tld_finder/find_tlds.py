@@ -16,6 +16,7 @@ def load_tlds():
 def find_matching_tlds(words, tlds):
     matches = {}
     for word in words:
+        domain = None  # Ensure domain is defined before conditional checks
         for tld in tlds:
             if word.endswith("." + tld):
                 domain = f"{word}"
