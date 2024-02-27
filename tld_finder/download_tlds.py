@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import requests
 
 def download_tlds():
@@ -5,7 +6,10 @@ def download_tlds():
     response = requests.get(url)
     if response.status_code == 200:
         with open("tlds-alpha-by-domain.txt", "w") as file:
-            file.write(response.text)
+            # Split the response into lines for progress reporting
+            lines = response.text.splitlines()
+            for line in tqdm(lines, desc="Downloading TLDs"):
+                file.write(f"{line}\n")
     else:
         print(f"Failed to download TLDs list. Status code: {response.status_code}")
 

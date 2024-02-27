@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import argparse
 import json
 import whois
@@ -26,9 +27,10 @@ def find_matching_tlds(words, tlds):
                     matches[word] = [domain]
     return matches
 
-def check_domain_availability(domains):
+def check_domain_availability(domains, verbose=False):
     availability = {}
-    for domain in domains:
+    domains_iter = tqdm(domains, desc="Checking domain availability") if verbose else domains
+    for domain in domains_iter:
         try:
             w = whois.whois(domain)
             # If the WHOIS library can find a record, the domain is likely registered.
@@ -50,7 +52,7 @@ def main():
 
     # Flatten the list of domains to check their availability
     all_domains = [domain for match_list in matches.values() for domain in match_list]
-    availability = check_domain_availability(all_domains)
+    availability = check_domain_availability(all_domains, verbose=True)
 
     # Include availability information in the matches output
     for word, domains in matches.items():
