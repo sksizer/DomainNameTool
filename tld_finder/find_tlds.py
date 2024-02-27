@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
+app = Flask(__name__)
 from tqdm import tqdm
 from download_tlds import download_tlds
 import threading
@@ -8,7 +9,36 @@ import argparse
 import json
 import whois
 
-def load_tlds():
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/tld_matches.json')
+def tld_matches():
+    return send_from_directory('.', 'tld_matches.json')
+
+@app.route('/submit_domains', methods=['POST'])
+def submit_domains():
+    data = request.json
+    words = data.get('domains', '').split()
+    if not words:
+        return jsonify({'error': 'No domains provided'}), 400
+
+    def update_matches():
+        tlds = load_tlds()
+        matches = find_matching_tlds(words, tlds)
+        all_domains = [domain for match_list in matches.values() for domain in match_list]
+        availability = check_domain_availability(all_domains, verbose=True)
+        for word, domains in matches.items():
+            matches[word] = {"results": [{'domain': domain, 'available': not availability[domain]} for domain in domains]}
+        output_file_path = os.path.join(os.path.dirname(__file__), 'tld_matches.json')
+        with open(output_file_path, "w") as file:
+            json.dump(matches, file, indent=4)
+
+    thread = threading.Thread(target=update_matches)
+    thread.start()
+    return jsonify({'message': 'Processing domains...'})
+
     import os
     script_dir = os.path.dirname(__file__)  # Get the directory where the script is located
     tlds_file_path = os.path.join(script_dir, "tlds-alpha-by-domain.txt")
@@ -64,39 +94,7 @@ def main():
     parser.add_argument("--serve", action="store_true", help="Serve the results via a web server.")
     args = parser.parse_args()
 
-    @app.route('/')
-    def index():
-        return send_from_directory('.', 'index.html')
-
-    @app.route('/tld_matches.json')
-    def tld_matches():
-        return send_from_directory('.', 'tld_matches.json')
-
     if args.serve:
-        app = Flask(__name__)
-
-        @app.route('/submit_domains', methods=['POST'])
-        def submit_domains():
-            data = request.json
-            words = data.get('domains', '').split()
-            if not words:
-                return jsonify({'error': 'No domains provided'}), 400
-
-            def update_matches():
-                tlds = load_tlds()
-                matches = find_matching_tlds(words, tlds)
-                all_domains = [domain for match_list in matches.values() for domain in match_list]
-                availability = check_domain_availability(all_domains, verbose=True)
-                for word, domains in matches.items():
-                    matches[word] = {"results": [{'domain': domain, 'available': not availability[domain]} for domain in domains]}
-                output_file_path = os.path.join(os.path.dirname(__file__), 'tld_matches.json')
-                with open(output_file_path, "w") as file:
-                    json.dump(matches, file, indent=4)
-
-            thread = threading.Thread(target=update_matches)
-            thread.start()
-            return jsonify({'message': 'Processing domains...'})
-
         app.run(debug=True, port=5000, threaded=True)
         sys.exit(0)
 
