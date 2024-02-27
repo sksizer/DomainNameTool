@@ -12,6 +12,21 @@
     </style>
 </head>
 <body>
+    <div id="domainForm">
+        <h2>Add Domains</h2>
+        <form id="addDomainForm">
+            <input type="text" id="domainInput" placeholder="Enter domains separated by space" />
+            <button type="submit">Find Matches</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('addDomainForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const domainInput = document.getElementById('domainInput').value;
+            // Here you would handle the form submission, e.g., by invoking a backend service.
+            console.log('Form submission for domains:', domainInput);
+        });
+    </script>
     <h1>TLD Matches</h1>
     <div id="results"></div>
     <script>
