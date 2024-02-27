@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLD Matches</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .result { margin-bottom: 20px; }
+        .domain { color: green; }
+        .not-available { color: red; }
+    </style>
+</head>
+<body>
+    <h1>TLD Matches</h1>
+    <div id="results"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('tld_matches.json')
+                .then(response => response.json())
+                .then(data => {
+                    const resultsContainer = document.getElementById('results');
+                    Object.keys(data).forEach(word => {
+                        const wordDiv = document.createElement('div');
+                        wordDiv.classList.add('result');
+                        wordDiv.innerHTML = `<h2>${word}</h2>`;
+                        data[word].results.forEach(({ domain, available }) => {
+                            const domainSpan = document.createElement('span');
+                            domainSpan.classList.add('domain');
+                            if (!available) domainSpan.classList.add('not-available');
+                            domainSpan.textContent = domain + (available ? ' (Available)' : ' (Not Available)');
+                            wordDiv.appendChild(domainSpan);
+                            wordDiv.appendChild(document.createElement('br'));
+                        });
+                        resultsContainer.appendChild(wordDiv);
+                    });
+                })
+                .catch(error => console.error('Error loading the TLD matches:', error));
+        });
+    </script>
+</body>
+</html>
