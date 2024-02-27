@@ -26,9 +26,13 @@
                         wordDiv.innerHTML = `<h2>${word}</h2>`;
                         data[word].results.forEach(({ domain, available }) => {
                             const domainSpan = document.createElement('span');
-                            domainSpan.classList.add('domain');
+                            const domainLink = document.createElement('a');
+                            domainLink.href = `http://${domain}`;
+                            domainLink.target = "_blank";
+                            domainLink.classList.add('domain');
+                            domainSpan.appendChild(domainLink);
                             if (!available) domainSpan.classList.add('not-available');
-                            domainSpan.textContent = domain + (available ? ' (Available)' : ' (Not Available)');
+                            domainLink.textContent = domain + (available ? ' (Available)' : ' (Not Available)');
                             wordDiv.appendChild(domainSpan);
                             wordDiv.appendChild(document.createElement('br'));
                         });
