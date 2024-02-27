@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 app = Flask(__name__)
 from tqdm import tqdm
-from download_tlds import download_tlds
+from download_tlds import download_tlds, load_tlds
 import threading
 import webbrowser
 import http.server
