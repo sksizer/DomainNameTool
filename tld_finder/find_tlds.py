@@ -64,6 +64,14 @@ def main():
     parser.add_argument("--serve", action="store_true", help="Serve the results via a web server.")
     args = parser.parse_args()
 
+    @app.route('/')
+    def index():
+        return send_from_directory('.', 'index.html')
+
+    @app.route('/tld_matches.json')
+    def tld_matches():
+        return send_from_directory('.', 'tld_matches.json')
+
     if args.serve:
         app = Flask(__name__)
 
@@ -89,7 +97,7 @@ def main():
             thread.start()
             return jsonify({'message': 'Processing domains...'})
 
-        app.run(debug=True, port=5000)
+        app.run(debug=True, port=5000, threaded=True)
         sys.exit(0)
 
     tlds = load_tlds()
