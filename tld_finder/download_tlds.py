@@ -1,5 +1,10 @@
-from tqdm import tqdm
-import requests
+try:
+    from tqdm import tqdm
+    import requests
+except ImportError as e:
+    print("Required module missing:", str(e).split()[-1])
+    print("Please install the missing module using 'pip install <module_name>'")
+    exit(1)
 
 def download_tlds():
     import os
