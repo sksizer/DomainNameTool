@@ -1,5 +1,6 @@
 from tqdm import tqdm
 from download_tlds import download_tlds
+import webbrowser
 import http.server
 import argparse
 import json
@@ -83,6 +84,7 @@ def main():
         handler = http.server.SimpleHTTPRequestHandler
         httpd = http.server.HTTPServer(("", port), handler)
         print(f"Serving at port {port}. Open http://localhost:{port}/index.html in your browser.")
+        webbrowser.open(f'http://localhost:{port}/index.html')
         httpd.serve_forever()
 
 if __name__ == "__main__":
