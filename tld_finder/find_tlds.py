@@ -17,12 +17,14 @@ def find_matching_tlds(words, tlds):
     matches = {}
     for word in words:
         for tld in tlds:
-            if word.endswith(tld):
-                domain = f"{word[:-len(tld)]}.{tld}"
             if word.endswith("." + tld):
-                domain = f"{word}.{tld}"
+                domain = f"{word}"
+            elif word.endswith(tld):
+                domain = f"{word[:-len(tld)]}.{tld}"
+            if domain:
                 if word in matches:
-                    matches[word].append(domain)
+                    if domain not in matches[word]:
+                        matches[word].append(domain)
                 else:
                     matches[word] = [domain]
     return matches
